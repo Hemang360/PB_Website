@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    instrumentationHook: true,
+  },
   eslint: {
     ignoreDuringBuilds: true, // Disables lint checks during the build process
   },
