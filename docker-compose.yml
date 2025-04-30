@@ -1,15 +1,16 @@
 version: '3'
 services:
   loki:
-    image: grafana/loki:2.8.0
+    image: grafana/loki:latest
     ports:
       - "3100:3100"
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - ./loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
-    image: grafana/promtail:2.8.0
+    image: grafana/promtail:latest
     volumes:
       - ./logs:/var/log
       - ./promtail-config.yaml:/etc/promtail/config.yml

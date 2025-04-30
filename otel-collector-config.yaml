@@ -12,21 +12,16 @@ processors:
     send_batch_size: 1024
 
 exporters:
-  logging:
-    loglevel: debug
-  
+  debug:  # ✅ replaces deprecated 'logging'
+    verbosity: detailed
+
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    format: json
-    labels:
-      resource:
-        service.name: service
-        service.version: version
-      attributes:
-        http.method: method
-        http.status_code: status
-        http.url: url
-    
+    default_labels_enabled:  # ✅ replaces invalid 'labels'
+      exporter: true
+      job: true
+      instance: true
+
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: prom
@@ -45,12 +40,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [debug]  # ✅ switched from logging ➔ debug
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, prometheus]
+      exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, loki]
+      exporters: [debug, loki]  # ✅ fixed exporter names
