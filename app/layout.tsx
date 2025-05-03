@@ -4,6 +4,7 @@ import Header from "@/components/ui/header";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import PageViewTracker from '../components/PageViewTracker';
 
 config.autoAddCss = false;
 
@@ -38,6 +39,7 @@ export default function RootLayout({
             {children}
           </div>
         </NextThemesProvider>
+        <PageViewTracker />
       </body>
     </html>
   );

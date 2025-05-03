@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    instrumentationHook: true,
   },
   eslint: {
     ignoreDuringBuilds: true, // Disables lint checks during the build process
@@ -37,12 +36,29 @@ const nextConfig = {
     ];
   },
   webpack: (config, { isServer }) => {
+    // Only apply these changes when bundling for the browser (not server)
     if (!isServer) {
+      // Extend existing fallback configuration
       config.resolve.fallback = {
+        ...config.resolve.fallback,
         fs: false,
         path: false,
+        // Add additional Node.js modules needed for OpenTelemetry
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+        os: false,
+        crypto: false,
+        buffer: false,
+        tty: false,
+        timers: false,
+        util: false,
+        net: false,
+        dns: false
       };
     }
+    
     return config;
   },
 };

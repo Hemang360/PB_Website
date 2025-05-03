@@ -10,21 +10,29 @@ processors:
   batch:
     timeout: 1s
     send_batch_size: 1024
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 4000
+    spike_limit_mib: 500
 
 exporters:
-  debug:  # ✅ replaces deprecated 'logging'
+  debug:
     verbosity: detailed
-
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    default_labels_enabled:  # ✅ replaces invalid 'labels'
+    default_labels_enabled:
       exporter: true
       job: true
       instance: true
-
+    labels:
+      resource:
+        service.name: true
+        service.namespace: true
   prometheus:
     endpoint: 0.0.0.0:8889
-    namespace: prom
+    namespace: point_blank
+    const_labels:
+      service: point-blank-website
 
 extensions:
   health_check:
@@ -39,13 +47,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [debug]  # ✅ switched from logging ➔ debug
+      processors: [memory_limiter, batch]
+      exporters: [debug]
     metrics:
       receivers: [otlp]
-      processors: [batch]
+      processors: [memory_limiter, batch]
       exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [debug, loki]  # ✅ fixed exporter names
+      processors: [memory_limiter, batch]
+      exporters: [debug, loki]

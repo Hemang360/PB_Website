@@ -15,4 +15,16 @@ scrape_configs:
           - localhost
         labels:
           job: nextjs-logs
-          __path__: /var/log/*log
+          __path__: /var/log/*.log
+          app: point-blank-website
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+      - labels:
+          level:
+      - timestamp:
+          source: timestamp
+          format: RFC3339
