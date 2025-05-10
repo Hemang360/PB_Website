@@ -24,10 +24,6 @@ exporters:
       exporter: true
       job: true
       instance: true
-    labels:
-      resource:
-        service.name: true
-        service.namespace: true
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: point_blank

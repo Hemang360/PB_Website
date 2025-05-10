@@ -2,6 +2,7 @@ version: '3'
 services:
   loki:
     image: grafana/loki:latest
+    user: "0"
     ports:
       - "3100:3100"
     volumes:
