@@ -5,6 +5,14 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'nextjs'
+          scrape_interval: 5s
+          static_configs:
+            - targets: ['host.docker.internal:3001']
+          metrics_path: '/api/metrics'
 
 processors:
   batch:
@@ -14,6 +22,11 @@ processors:
     check_interval: 1s
     limit_mib: 4000
     spike_limit_mib: 500
+  resource:
+    attributes:
+      - key: service.name
+        value: "point-blank-website"
+        action: upsert
 
 exporters:
   debug:
@@ -24,11 +37,16 @@ exporters:
       exporter: true
       job: true
       instance: true
+      service: true
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: point_blank
     const_labels:
       service: point-blank-website
+    send_timestamps: true
+    metric_expiration: 180m
+    resource_to_telemetry_conversion:
+      enabled: true
 
 extensions:
   health_check:
@@ -43,13 +61,17 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch, resource]
       exporters: [debug]
     metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch, resource]
       exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch, resource]
       exporters: [debug, loki]
+
+  telemetry:
+    logs:
+      level: debug

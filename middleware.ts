@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import logger from './utils/logger';
+
 export function middleware(request: NextRequest) {
   const startTime = Date.now();
   const requestId = crypto.randomUUID();
+  
   logger.info(`Incoming request: ${request.method} ${request.nextUrl.pathname}`, {
     requestId,
     method: request.method,
     path: request.nextUrl.pathname,
     userAgent: request.headers.get('user-agent') || 'unknown',
   });
+
   if (request.nextUrl.pathname === '/api/docs') {
     const response = NextResponse.next({
       headers: {
@@ -22,6 +25,7 @@ export function middleware(request: NextRequest) {
     response.headers.set('x-request-id', requestId);
     return response;
   }
+
   if (request.method === 'OPTIONS') {
     const response = NextResponse.json({}, {
       headers: {
@@ -38,8 +42,18 @@ export function middleware(request: NextRequest) {
   // Default response
   const response = NextResponse.next();
   response.headers.set('x-request-id', requestId);
+
+  // Log response time
+  const duration = Date.now() - startTime;
+  logger.info(`Request completed: ${request.method} ${request.nextUrl.pathname}`, {
+    requestId,
+    duration,
+    status: response.status,
+  });
+
   return response;
 }
+
 export const config = {
   matcher: [
     '/api/:path*',

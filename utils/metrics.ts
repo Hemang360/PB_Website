@@ -1,53 +1,57 @@
 // utils/metrics.ts
-import { Meter, metrics } from '@opentelemetry/api';
+import { Registry, Counter, Histogram, Gauge } from 'prom-client';
+
+// Create a registry to store metrics
+export const register = new Registry();
 
 class MetricsService {
-  private meter: Meter;
-  private pageViewCounter;
-  private apiResponseTimeHistogram;
-  private activeSessions;
+  private pageViewCounter: Counter;
+  private apiResponseTimeHistogram: Histogram;
+  private activeSessionsGauge: Gauge;
 
   constructor() {
-    this.meter = metrics.getMeter('point-blank-website');
-    
     // Counter for page views
-    this.pageViewCounter = this.meter.createCounter('page_views', {
-      description: 'Number of page views',
-      unit: '1',
+    this.pageViewCounter = new Counter({
+      name: 'point_blank_page_views_total',
+      help: 'Number of page views',
+      labelNames: ['path'],
+      registers: [register],
     });
     
     // Histogram for API response times
-    this.apiResponseTimeHistogram = this.meter.createHistogram('api_response_time', {
-      description: 'API response time',
-      unit: 'ms',
+    this.apiResponseTimeHistogram = new Histogram({
+      name: 'point_blank_api_response_time_seconds',
+      help: 'API response time in seconds',
+      labelNames: ['endpoint', 'status_code'],
+      buckets: [0.1, 0.5, 1, 2, 5],
+      registers: [register],
     });
     
-    // Up/down counter for active sessions
-    this.activeSessions = this.meter.createUpDownCounter('active_sessions', {
-      description: 'Number of active sessions',
-      unit: '1',
+    // Gauge for active sessions
+    this.activeSessionsGauge = new Gauge({
+      name: 'point_blank_active_sessions',
+      help: 'Number of active sessions',
+      registers: [register],
     });
   }
 
   recordPageView(path: string) {
-    this.pageViewCounter.add(1, {
-      path,
-    });
+    this.pageViewCounter.inc({ path });
   }
 
   recordApiResponseTime(endpoint: string, statusCode: number, durationMs: number) {
-    this.apiResponseTimeHistogram.record(durationMs, {
-      endpoint,
-      statusCode: statusCode.toString(),
-    });
+    this.apiResponseTimeHistogram.observe(
+      { endpoint, status_code: statusCode.toString() },
+      durationMs / 1000 // Convert to seconds
+    );
   }
 
   sessionStarted() {
-    this.activeSessions.add(1);
+    this.activeSessionsGauge.inc();
   }
 
   sessionEnded() {
-    this.activeSessions.add(-1);
+    this.activeSessionsGauge.dec();
   }
 }
 

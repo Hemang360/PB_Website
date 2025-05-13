@@ -7,6 +7,8 @@ export async function register() {
       const { OTLPMetricExporter } = await import('@opentelemetry/exporter-metrics-otlp-http');
       const { SemanticResourceAttributes } = await import('@opentelemetry/semantic-conventions');
       const { PeriodicExportingMetricReader } = await import('@opentelemetry/sdk-metrics');
+      const { HttpInstrumentation } = await import('@opentelemetry/instrumentation-http');
+      const { ExpressInstrumentation } = await import('@opentelemetry/instrumentation-express');
       
       //here is the actual fix ------> get the default resource first
       const sdkNode = await import('@opentelemetry/sdk-node');
@@ -36,6 +38,8 @@ export async function register() {
           exportIntervalMillis: 10000, 
         }),
         instrumentations: [
+          new HttpInstrumentation(),
+          new ExpressInstrumentation(),
         ],
       });
 
