@@ -15,6 +15,12 @@ scrape_configs:
 
   - job_name: 'nextjs'
     static_configs:
-      - targets: ['host.docker.internal:3001']
+      - targets: ['host.docker.internal:3001']  # Will need to be adjusted for Linux
     metrics_path: '/api/metrics'
-    scrape_interval: 5s 
+    scrape_interval: 5s
+
+  - job_name: 'tempo'
+    static_configs:
+      - targets: ['tempo:3200']
+    metrics_path: '/metrics'
+    scrape_interval: 5s

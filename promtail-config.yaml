@@ -15,7 +15,7 @@ scrape_configs:
           - localhost
         labels:
           job: nextjs-logs
-          __path__: /var/log/*.log
+          __path__: /var/log/**/*.log
           app: point-blank-website
     pipeline_stages:
       - json:

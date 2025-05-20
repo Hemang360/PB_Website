@@ -11,7 +11,7 @@ receivers:
         - job_name: 'nextjs'
           scrape_interval: 5s
           static_configs:
-            - targets: ['host.docker.internal:3001']
+            - targets: ['host.docker.internal:3001']  # Using service name instead of host.docker.internal
           metrics_path: '/api/metrics'
 
 processors:
@@ -47,6 +47,10 @@ exporters:
     metric_expiration: 180m
     resource_to_telemetry_conversion:
       enabled: true
+  otlp:
+    endpoint: tempo:4317  # Send traces to Tempo
+    tls:
+      insecure: true
 
 extensions:
   health_check:
@@ -62,7 +66,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch, resource]
-      exporters: [debug]
+      exporters: [debug, otlp]  # Added otlp exporter for traces
     metrics:
       receivers: [otlp, prometheus]
       processors: [memory_limiter, batch, resource]

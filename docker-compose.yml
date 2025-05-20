@@ -68,12 +68,31 @@ services:
       - "8889:8889"  # Prometheus
     depends_on:
       - loki
+      - tempo
     networks:
       - monitoring
+      
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"  # Tempo UI
+      - "4319:4319"  # OTLP gRPC
+    networks:
+      - monitoring
+    user: "0"
 
 networks:
   monitoring:
     driver: bridge
+    # Add extra_hosts config if needed for Linux compatibility
+    # For Linux, you can uncomment the below:
+    # driver_opts:
+    #   com.docker.network.driver.mtu: 1450
+    #   com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
 
 volumes:
   grafana-storage:

@@ -13,3 +13,12 @@ datasources:
     url: http://prometheus:9090
     jsonData:
       timeInterval: 15s
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      nodeGraph:
+        enabled: true
+      serviceMap:
+        datasourceUid: 'prometheus'  # Must match the name of your Prometheus datasource
