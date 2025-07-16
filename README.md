@@ -37,7 +37,7 @@ Follow the instructions in the [Infisical CLI documentation](https://infisical.c
  to install the CLI on your machine. 
 
 
-The application will be accessible at [http://localhost:3000](http://localhost:3000).  
+The application will be accessible at [http://localhost:3002](http://localhost:3002).  
 
 ### **4. Login and Initialize Infisical** 
 1. Navigate to the repository in your terminal.
@@ -90,7 +90,7 @@ If you have Docker installed and use VS Code, you can use Dev Containers for a m
    npm run dev
    ```
 
-The application will be accessible at [http://localhost:3000](http://localhost:3000).
+The application will be accessible at [http://localhost:3002](http://localhost:3002).
 
 **Note**: When using devcontainers, you'll still need to set up Infisical for environment variables. Follow steps 4 and 5 from the standard setup instructions above.
 

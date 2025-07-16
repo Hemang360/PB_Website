@@ -6,7 +6,7 @@
     "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "forwardPorts": [3000],
+  "forwardPorts": [3002, 9090, 3001, 9464],
   "customizations": {
     "vscode": {
       "extensions": [

@@ -1,0 +1,52 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+  # - "alert_rules.yml"
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Scrape metrics from the Next.js application
+  - job_name: "pb-website"
+    metrics_path: "/metrics"
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ["host.docker.internal:9464"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: host.docker.internal:9464
+
+  # Optional: Node exporter for system metrics (if you want to monitor server resources)
+  # - job_name: "node-exporter"
+  #   static_configs:
+  #     - targets: ["localhost:9100"]
+
+# Alerting configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Additional configuration for recording rules (optional)
+# recording_rules:
+#   - name: pb_website_rules
+#     rules:
+#       - record: pb_website:http_requests_per_second
+#         expr: rate(http_requests_total[5m])
+#       - record: pb_website:http_request_duration_95th_percentile
+#         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+#       - record: pb_website:error_rate
+#         expr: rate(errors_total[5m]) / rate(http_requests_total[5m]) 
