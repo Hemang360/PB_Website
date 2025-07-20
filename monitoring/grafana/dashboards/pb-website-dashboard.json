@@ -1,7 +1,7 @@
 {
   "id": null,
-  "title": "PB Website Monitoring Dashboard",
-  "tags": ["nextjs", "opentelemetry", "prometheus"],
+  "title": "PB Website Monitoring",
+  "tags": ["nextjs", "opentelemetry"],
   "timezone": "browser",
   "schemaVersion": 30,
   "version": 1,
@@ -10,14 +10,6 @@
     "from": "now-1h",
     "to": "now"
   },
-  "timepicker": {},
-  "templating": {
-    "list": []
-  },
-  "annotations": {
-    "list": []
-  },
-  "links": [],
   "panels": [
     {
       "id": 1,
@@ -47,8 +39,7 @@
           "values": false
         },
         "textMode": "auto"
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 2,
@@ -79,7 +70,6 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.0.0",
       "fieldConfig": {
         "defaults": {
           "unit": "ms"
@@ -113,8 +103,7 @@
         "tooltip": {
           "mode": "single"
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 4,
@@ -143,8 +132,7 @@
         "tooltip": {
           "mode": "single"
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 5,
@@ -195,8 +183,7 @@
             ]
           }
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 6,
@@ -224,8 +211,7 @@
         "tooltip": {
           "mode": "single"
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 7,
@@ -273,8 +259,7 @@
         "defaults": {
           "unit": "ms"
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 8,
@@ -296,8 +281,7 @@
       },
       "options": {
         "showHeader": true
-      },
-      "pluginVersion": "9.0.0"
+      }
     },
     {
       "id": 9,
@@ -332,8 +316,7 @@
         "defaults": {
           "unit": "ms"
         }
-      },
-      "pluginVersion": "9.0.0"
+      }
     }
   ]
 } 

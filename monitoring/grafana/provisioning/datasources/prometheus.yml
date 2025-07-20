@@ -6,13 +6,4 @@ datasources:
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    editable: true
-    jsonData:
-      httpMethod: POST
-      manageAlerts: true
-      prometheusType: Prometheus
-      prometheusVersion: 2.37.0
-      cacheLevel: 'High'
-      disableMetricsLookup: false
-      customQueryParameters: ''
-      timeInterval: '30s' 
+    editable: true 
