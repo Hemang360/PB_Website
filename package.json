@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
+    "dev:no-telemetry": "DISABLE_TELEMETRY=true tsx server.ts",
     "build": "next build",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "next lint",
@@ -16,16 +17,10 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^1.7.17",
     "@infisical/sdk": "^4.0.2",
-    "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.62.0",
     "@opentelemetry/exporter-prometheus": "^0.203.0",
-    "@opentelemetry/instrumentation-express": "^0.52.0",
-    "@opentelemetry/instrumentation-fs": "^0.23.0",
-    "@opentelemetry/instrumentation-http": "^0.203.0",
-    "@opentelemetry/resources": "^2.0.1",
-    "@opentelemetry/sdk-metrics": "^2.0.1",
     "@opentelemetry/sdk-node": "^0.203.0",
-    "@opentelemetry/semantic-conventions": "^1.36.0",
+    "@types/node": "^20.10.4",
     "@types/react": "^18.2.42",
     "@types/swagger-ui-react": "^5.18.0",
     "@upstash/ratelimit": "^2.0.5",
@@ -57,6 +52,7 @@
     "swagger-ui-react": "^5.18.3",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.3.3",
     "uuid": "^11.0.3",
     "zustand": "^5.0.2"
   },
@@ -64,12 +60,10 @@
     "@tailwindcss/forms": "^0.5.7",
     "@types/aos": "^3.0.7",
     "@types/lodash": "^4.17.16",
-    "@types/node": "^24.0.13",
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.13",
     "tailwindcss": "^3.3.6",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "tsx": "^4.20.3"
   },
   "overrides": {
     "prismjs": "^1.29.0"

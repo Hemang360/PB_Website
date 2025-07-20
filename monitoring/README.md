@@ -106,35 +106,29 @@ The Prometheus configuration is in `monitoring/prometheus.yml`. Key settings:
 
 ### Custom Metrics
 
-You can add custom metrics to your application:
+OpenTelemetry automatically collects HTTP metrics, but you can add custom metrics using the OpenTelemetry API:
 
 ```typescript
-import { recordBusinessMetric, recordGaugeMetric } from './telemetry/metrics';
+import { metrics } from '@opentelemetry/api';
 
-// Record custom business events
-recordBusinessMetric('user_registrations_total', 1, { source: 'web' });
-
-// Record gauge metrics
-recordGaugeMetric('active_users', 150, { region: 'us-east-1' });
-```
-
-## 📈 Using the Metrics in Your API Routes
-
-Wrap your API route handlers with the metrics middleware:
-
-```typescript
-import { withMetrics } from '@/telemetry/metrics';
-
-export const GET = withMetrics(async (request: NextRequest) => {
-  // Your API logic here
-  return Response.json({ message: 'Hello World' });
+const meter = metrics.getMeter('my-app', '1.0.0');
+const counter = meter.createCounter('my_custom_metric', {
+  description: 'My custom metric',
 });
 
-export const POST = withMetrics(async (request: NextRequest) => {
-  // Your API logic here
-  return Response.json({ success: true });
-});
+// Record custom events
+counter.add(1, { label: 'value' });
 ```
+
+## 📈 Metrics Collection
+
+OpenTelemetry automatically collects HTTP metrics from your Next.js application. No additional code is needed in your API routes - metrics are collected automatically for:
+
+- HTTP request counts
+- Response times
+- Status codes
+- Request methods
+- Error rates
 
 ## 🎯 Advanced Queries
 
@@ -144,16 +138,16 @@ Here are some useful Prometheus queries you can use:
 
 ```promql
 # Request rate by endpoint
-sum(rate(http_requests_total[5m])) by (path)
+sum(rate(http_server_duration_count[5m])) by (http_method)
 
 # Error rate percentage
-sum(rate(errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100
+sum(rate(http_server_duration_count{http_status_code=~"4..|5.."}[5m])) / sum(rate(http_server_duration_count[5m])) * 100
 
 # 95th percentile response time
-histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+histogram_quantile(0.95, rate(http_server_duration_bucket[5m]))
 
-# Top 10 slowest endpoints
-topk(10, histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) by (path))
+# Average response time
+sum(rate(http_server_duration_sum[5m])) / sum(rate(http_server_duration_count[5m]))
 ```
 
 ### Grafana Alerts

@@ -25,7 +25,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total[5m]))",
+          "expr": "sum(rate(http_server_duration_count[5m]))",
           "legendFormat": "Requests/sec",
           "refId": "A"
         }
@@ -56,7 +56,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.95, rate(http_server_duration_bucket[5m]))",
           "legendFormat": "95th percentile",
           "refId": "A"
         }
@@ -82,7 +82,7 @@
       "pluginVersion": "9.0.0",
       "fieldConfig": {
         "defaults": {
-          "unit": "s"
+          "unit": "ms"
         }
       }
     },
@@ -92,8 +92,8 @@
       "type": "piechart",
       "targets": [
         {
-          "expr": "sum by (method) (rate(http_requests_total[5m]))",
-          "legendFormat": "{{ method }}",
+          "expr": "sum by (http_method) (rate(http_server_duration_count[5m]))",
+          "legendFormat": "{{ http_method }}",
           "refId": "A"
         }
       ],
@@ -122,8 +122,8 @@
       "type": "piechart",
       "targets": [
         {
-          "expr": "sum by (status_code) (rate(http_requests_total[5m]))",
-          "legendFormat": "{{ status_code }}",
+          "expr": "sum by (http_status_code) (rate(http_server_duration_count[5m]))",
+          "legendFormat": "{{ http_status_code }}",
           "refId": "A"
         }
       ],
@@ -152,7 +152,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "sum(rate(errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100",
+          "expr": "sum(rate(http_server_duration_count{http_status_code=~\"4..|5..\"}[5m])) / sum(rate(http_server_duration_count[5m])) * 100",
           "legendFormat": "Error Rate %",
           "refId": "A"
         }
@@ -204,19 +204,9 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total[5m]))",
+          "expr": "sum(rate(http_server_duration_count[5m]))",
           "legendFormat": "Total Requests/sec",
           "refId": "A"
-        },
-        {
-          "expr": "sum(rate(page_views_total[5m]))",
-          "legendFormat": "Page Views/sec",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(rate(api_requests_total[5m]))",
-          "legendFormat": "API Requests/sec",
-          "refId": "C"
         }
       ],
       "gridPos": {
@@ -243,22 +233,22 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.50, rate(http_server_duration_bucket[5m]))",
           "legendFormat": "50th percentile",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.90, rate(http_request_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.90, rate(http_server_duration_bucket[5m]))",
           "legendFormat": "90th percentile",
           "refId": "B"
         },
         {
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.95, rate(http_server_duration_bucket[5m]))",
           "legendFormat": "95th percentile",
           "refId": "C"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.99, rate(http_server_duration_bucket[5m]))",
           "legendFormat": "99th percentile",
           "refId": "D"
         }
@@ -281,19 +271,19 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "s"
+          "unit": "ms"
         }
       },
       "pluginVersion": "9.0.0"
     },
     {
       "id": 8,
-      "title": "Top Routes by Request Count",
+      "title": "Requests by Host",
       "type": "table",
       "targets": [
         {
-          "expr": "topk(10, sum by (path) (rate(http_requests_total[5m])))",
-          "legendFormat": "{{ path }}",
+          "expr": "sum by (net_host_name) (rate(http_server_duration_count[5m]))",
+          "legendFormat": "{{ net_host_name }}",
           "refId": "A",
           "format": "table"
         }
@@ -311,12 +301,12 @@
     },
     {
       "id": 9,
-      "title": "Requests In Progress",
+      "title": "Average Response Time",
       "type": "stat",
       "targets": [
         {
-          "expr": "sum(http_requests_in_progress)",
-          "legendFormat": "Active Requests",
+          "expr": "sum(rate(http_server_duration_sum[5m])) / sum(rate(http_server_duration_count[5m]))",
+          "legendFormat": "Avg Response Time",
           "refId": "A"
         }
       ],
@@ -337,6 +327,11 @@
           "values": false
         },
         "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
       },
       "pluginVersion": "9.0.0"
     }

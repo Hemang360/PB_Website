@@ -19,6 +19,8 @@ services:
     restart: unless-stopped
     networks:
       - monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   grafana:
     image: grafana/grafana:latest

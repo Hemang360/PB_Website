@@ -2,11 +2,13 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { initializeTelemetry, shutdownTelemetry } from './telemetry/setup';
-import { trackRequestStart, trackRequestEnd } from './telemetry/metrics';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || 'localhost';
 const port = parseInt(process.env.PORT || '3002', 10);
+
+let server: any = null;
+let isShuttingDown = false;
 
 // Initialize telemetry first
 console.log('🚀 Initializing telemetry...');
@@ -22,36 +24,16 @@ const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  createServer(async (req, res) => {
+  server = createServer(async (req, res) => {
     try {
-      // Start request tracking
-      const startTime = trackRequestStart();
-      
       // Parse the request URL
       const parsedUrl = parse(req.url!, true);
-      const { pathname, query } = parsedUrl;
-      
-      // Get request information
-      const method = req.method || 'GET';
-      const userAgent = req.headers['user-agent'];
       
       // Handle the request
       await handle(req, res, parsedUrl);
       
-      // Track request completion
-      const statusCode = res.statusCode || 200;
-      trackRequestEnd(startTime, method, pathname || '/', statusCode, userAgent);
-      
     } catch (error) {
       console.error('Error handling request:', error);
-      
-      // Track error
-      const startTime = Date.now();
-      const method = req.method || 'GET';
-      const pathname = parse(req.url!, true).pathname || '/';
-      const userAgent = req.headers['user-agent'];
-      
-      trackRequestEnd(startTime, method, pathname, 500, userAgent);
       
       // Send error response
       if (!res.headersSent) {
@@ -62,7 +44,9 @@ app.prepare().then(() => {
   })
   .once('error', (err) => {
     console.error('Server error:', err);
-    process.exit(1);
+    if (!isShuttingDown) {
+      process.exit(1);
+    }
   })
   .listen(port, () => {
     console.log(`🌟 Server ready on http://${hostname}:${port}`);
@@ -70,28 +54,59 @@ app.prepare().then(() => {
   });
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('🛑 Shutting down gracefully...');
-  await shutdownTelemetry();
-  process.exit(0);
-});
+// Graceful shutdown function
+async function gracefulShutdown(signal: string) {
+  if (isShuttingDown) return;
+  
+  isShuttingDown = true;
+  console.log(`🛑 Received ${signal}. Shutting down gracefully...`);
+  
+  // Set a timeout to force exit if shutdown takes too long
+  const timeout = setTimeout(() => {
+    console.log('⏰ Shutdown timeout reached, forcing exit...');
+    process.exit(1);
+  }, 10000); // 10 seconds timeout
+  
+  try {
+    // Close the HTTP server
+    if (server) {
+      await new Promise<void>((resolve) => {
+        server.close(() => {
+          console.log('✅ HTTP server closed');
+          resolve();
+        });
+      });
+    }
+    
+    // Shutdown telemetry
+    await shutdownTelemetry();
+    console.log('✅ Telemetry shutdown complete');
+    
+    clearTimeout(timeout);
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    clearTimeout(timeout);
+    process.exit(1);
+  }
+}
 
-process.on('SIGINT', async () => {
-  console.log('🛑 Shutting down gracefully...');
-  await shutdownTelemetry();
-  process.exit(0);
-});
+// Handle shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions
 process.on('uncaughtException', async (error) => {
   console.error('❌ Uncaught exception:', error);
-  await shutdownTelemetry();
-  process.exit(1);
+  if (!isShuttingDown) {
+    await gracefulShutdown('uncaughtException');
+  }
 });
 
+// Handle unhandled rejections
 process.on('unhandledRejection', async (reason, promise) => {
   console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
-  await shutdownTelemetry();
-  process.exit(1);
+  if (!isShuttingDown) {
+    await gracefulShutdown('unhandledRejection');
+  }
 }); 
