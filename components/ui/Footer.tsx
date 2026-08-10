@@ -20,6 +20,7 @@ const footerLinks = [
   { name: "Talks", href: "/talks" },
   { name: "Blog", href: "https://blog.pointblank.club", ext: true, trackTarget: "blog" },
   { name: "Hustle Results", href: "/hustle" },
+  { name: "GitHub", href: "https://github.com/pointblank-club", ext: true},
 ];
 
 const socials = [
