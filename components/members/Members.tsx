@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Card from "@/components/members/MembersCard";
 import CollapsibleSection from "@/components/members/Collapsible";
+import RecruitmentBanner from "@/components/members/RecruitmentBanner";
 import { useAuthStore } from "@/lib/store/auth";
 import {
   Dialog,
@@ -318,6 +319,7 @@ export default function Members(props: { members: Member[] }) {
                 onToggle={() => handleToggle(index)}
                 content={
                   <div className="flex flex-col items-center space-y-6 w-full pt-4 pb-8">
+                    {heading === "First Year" && <RecruitmentBanner />}
                     <div
                       className={`grid justify-items-center gap-y-12 gap-x-6 md:gap-x-8 lg:gap-x-10 w-full max-w-7xl mx-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}
                     >
