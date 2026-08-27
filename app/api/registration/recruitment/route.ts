@@ -2,6 +2,7 @@ import connectDB from "@/lib/db/connection";
 import RecruitmentModel from "@/models/Recruitment";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 /**
  * @swagger
@@ -263,6 +264,15 @@ async function checkDuplicates(request: Request) {
     if (existingCollegeId) duplicates.push("college_id");
 
     if (duplicates.length > 0) {
+      const posthog = getPostHogClient();
+      if (posthog) {
+        posthog.capture({
+          distinctId: normalizedEmail ?? "anonymous",
+          event: "recruitment_duplicate_detected",
+          properties: { duplicate_fields: duplicates },
+        });
+        await posthog.flush();
+      }
       return NextResponse.json(
         { error: "Already registered", duplicates },
         { status: 409 }
@@ -435,6 +445,19 @@ async function addRegistration(request: Request) {
         setTimeout(() => reject(new Error("Save operation timeout")), 10000)
       ),
     ]);
+
+    const posthog = getPostHogClient();
+    if (posthog) {
+      posthog.capture({
+        distinctId: data2.email,
+        event: "recruitment_registered",
+        properties: {
+          year_of_study: data2.year_of_study,
+          branch: data2.branch,
+        },
+      });
+      await posthog.flush();
+    }
 
     return NextResponse.json({ message: "Registration successful!" });
   } catch (error) {

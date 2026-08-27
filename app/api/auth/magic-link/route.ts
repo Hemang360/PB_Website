@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyLoginToken } from "@/lib/server/auth";
 import connectDB from "@/lib/db/connection";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export async function GET(request: NextRequest) {
   await connectDB()
@@ -18,6 +19,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       new URL("/admin?error=invalid_token", request.url),
     );
+  }
+
+  const posthog = getPostHogClient();
+  if (posthog) {
+    posthog.capture({
+      distinctId: "admin",
+      event: "admin_magic_link_verified",
+    });
+    await posthog.flush();
   }
 
   const response = NextResponse.redirect(

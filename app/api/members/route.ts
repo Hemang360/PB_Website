@@ -10,6 +10,7 @@ import { createLog } from "@/lib/server/logs";
 import { type Members } from "@/lib/db/models/members";
 import { verifyToken } from "@/lib/server/auth";
 import connectDB from "@/lib/db/connection";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 /*
  * GET /api/members
@@ -78,6 +79,17 @@ export async function POST(request: Request) {
     email: admin.email,
     title: `Created member ${name}`,
   });
+
+  const posthogCreate = getPostHogClient();
+  if (posthogCreate) {
+    posthogCreate.capture({
+      distinctId: admin.email,
+      event: "member_created",
+      properties: { role, year },
+    });
+    await posthogCreate.flush();
+  }
+
   return NextResponse.json({ success: true, member: newMember });
 }
 
@@ -135,6 +147,16 @@ export async function PUT(request: Request) {
     title: `Updated member ${name}`,
   });
 
+  const posthogUpdate = getPostHogClient();
+  if (posthogUpdate) {
+    posthogUpdate.capture({
+      distinctId: admin.email,
+      event: "member_updated",
+      properties: { role, year },
+    });
+    await posthogUpdate.flush();
+  }
+
   return NextResponse.json({ success: true, member: updatedMember });
 }
 
@@ -190,6 +212,16 @@ export async function DELETE(request: Request) {
     email: admin.email,
     title: `Deleted member ${existing.name}`,
   });
+
+  const posthogDelete = getPostHogClient();
+  if (posthogDelete) {
+    posthogDelete.capture({
+      distinctId: admin.email,
+      event: "member_deleted",
+      properties: { role: existing.role, year: existing.year },
+    });
+    await posthogDelete.flush();
+  }
 
   return NextResponse.json({ success: true });
 }

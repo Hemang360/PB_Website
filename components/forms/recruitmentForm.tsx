@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import CustomSelect from "@/components/ui/custom-select";
 import ReviewInformationForm from "./recruitmentForm/ReviewInformationForm";
+import posthog from "posthog-js";
 
 interface FormData {
   name: string;
@@ -139,6 +140,10 @@ const RecruitmentForm: React.FC = () => {
 
       setFormDataForSubmission(data);
       setCurrentStep("review");
+      posthog.capture("recruitment_form_review_opened", {
+        year_of_study: data.year_of_study,
+        branch: data.branch,
+      });
       setIsSubmitting(false);
       return;
     }
@@ -148,6 +153,10 @@ const RecruitmentForm: React.FC = () => {
       // Submit registration directly
       const success = await submitRegistration(data);
       if (success) {
+        posthog.capture("recruitment_submitted", {
+          year_of_study: data.year_of_study,
+          branch: data.branch,
+        });
         setSuccess(true);
       }
       return;
