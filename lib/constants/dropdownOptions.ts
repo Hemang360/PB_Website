@@ -21,4 +21,4 @@ export const branches: string[] = [
   "Medical Electronics Engineering",
   "Robotics and Artificial Intelligence",
 ];
-export const years: string[] = ["1st year", "2nd year", "3rd year", "4th year"];
+export const years: string[] = ["1st year", "2nd year", "3rd year"];
